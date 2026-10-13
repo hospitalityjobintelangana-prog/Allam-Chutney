@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Allam Pachadi Production Plan - Focus Prism</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{--bg:#eef1f2;--card:#fff;--ink:#1d2b2a;--mute:#5b6b69;--line:#cfd8d9;--tam:#5a2e1f;--gold:#c98a00;--ok:#1f7a4d}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{background:var(--tam);color:#fff;padding:18px 16px}
+header h1{margin:0;font:700 22px/1.2 Georgia,serif}
+header p{margin:4px 0 0;opacity:.8;font-size:14px}
+main{max-width:900px;margin:0 auto;padding:12px}
+section{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:14px;margin-bottom:12px}
+h2{margin:0 0 10px;font:700 17px Georgia,serif;color:var(--tam)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+label{display:block;font-size:13px;color:var(--mute);margin-bottom:3px}
+input,select{width:100%;min-height:46px;padding:8px 10px;border:1px solid var(--line);border-radius:5px;font:inherit;background:#fff;color:var(--ink)}
+input:focus,select:focus,button:focus-visible{outline:3px solid var(--gold);outline-offset:1px}
+.sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+.sum div{border-left:4px solid var(--gold);padding:4px 10px;background:#faf9f4}
+.sum b{display:block;font-size:22px;font-variant-numeric:tabular-nums}
+.sum span{font-size:13px;color:var(--mute)}
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th,td{padding:8px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+th{font-size:13px;color:var(--mute);font-weight:600}
+td.n,th.n{text-align:right}
+tr.tot td{font-weight:700;background:#faf9f4}
+td input[type=checkbox]{width:24px;min-height:24px}
+td input[type=text]{min-height:38px;min-width:110px}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+button{min-height:46px;padding:0 16px;border:0;border-radius:5px;font:600 15px inherit;font-family:inherit;background:var(--tam);color:#fff;cursor:pointer}
+button.alt{background:#fff;color:var(--tam);border:1px solid var(--tam)}
+ol{margin:0;padding-left:20px}li{margin-bottom:6px}
+.note{font-size:13px;color:var(--mute);margin:8px 0 0}
+.hide{display:none}
+@media print{header p,.btns,.noprint{display:none}body{background:#fff}section{border:0;padding:6px 0}}
+</style>
+</head>
+<body>
+<header>
+<h1>Allam Pachadi production plan</h1>
+<p>Focus Prism kitchen. Enter the quantity needed and get batches and ingredient totals.</p>
+</header>
+<main>
+
+<section>
+<h2>Requirement</h2>
+<div class="grid">
+<div><label for="prodDate">Production date</label><input type="date" id="prodDate"></div>
+<div><label for="reqQty">Quantity required (kg)</label><input type="number" id="reqQty" inputmode="decimal" min="0" step="0.5" value="20"></div>
+<div><label for="buffer">Extra for wastage (%)</label><input type="number" id="buffer" inputmode="decimal" min="0" step="1" value="5"></div>
+<div><label for="batchSel">Batch size</label>
+<select id="batchSel"><option value="5">5 kg</option><option value="10" selected>10 kg</option><option value="custom">Custom</option></select></div>
+<div id="customWrap" class="hide"><label for="batchCustom">Custom batch (kg)</label><input type="number" id="batchCustom" inputmode="decimal" min="0.5" step="0.5" value="7.5"></div>
+<div><label for="shelf">Use within (days, chilled)</label><input type="number" id="shelf" inputmode="numeric" min="1" step="1" value="5"></div>
+<div><label for="prepBy">Prepared by</label><input type="text" id="prepBy" autocomplete="off"></div>
+</div>
+<p class="note">Base recipe yields about 700 g per run. Actual yield varies with cooking loss, so check the first batch.</p>
+</section>
+
+<section>
+<h2>Plan summary</h2>
+<div class="sum" id="sum"></div>
+</section>
+
+<section>
+<h2>Ingredients to issue</h2>
+<div class="scroll"><table id="ingTbl"></table></div>
+</section>
+
+<section>
+<h2>Batch schedule</h2>
+<div class="scroll"><table id="batchTbl"></table></div>
+</section>
+
+<section>
+<h2>Method for each batch</h2>
+<ol>
+<li>Peel, wash and chop the ginger. Saute in sesame oil on medium-low heat until the raw smell goes and it turns lightly golden. Work in 2 to 3 lots.</li>
+<li>Dry-roast coriander, cumin and fenugreek. Roast the red chillies in a little oil until aromatic.</li>
+<li>Soak tamarind in warm water, extract the pulp and heat with jaggery until dissolved. Strain if needed.</li>
+<li>Grind ginger, chillies, spices, tamarind-jaggery and salt to a thick, slightly coarse paste. Add water a little at a time.</li>
+<li>Heat the remaining oil, splutter the mustard seeds and pour over the chutney. Simmer gently for a few minutes.</li>
+<li>Add about 80% of the salt and chilli first. Taste and adjust at the end.</li>
+<li>Cool quickly, pack in clean airtight labelled containers and refrigerate. Not shelf-stable.</li>
+</ol>
+</section>
+
+<section class="noprint">
+<div class="btns">
+<button id="xlsBtn">Download Excel</button>
+<button class="alt" id="printBtn">Print sheet</button>
+<button class="alt" id="resetBtn">Reset</button>
+</div>
+<p class="note">Entries are saved on this device only.</p>
+</section>
+</main>
+
+<script>
+(function(){
+var KEY='focusprism_chutney_plan_v1';
+var BASE_YIELD=0.7; // kg per base recipe
+var ING=[
+['Fresh ginger, peeled',200,'g'],['Tamarind, deseeded',75,'g'],['Jaggery',150,'g'],
+['Dry red chillies',22.5,'g'],['Coriander seeds',20,'g'],['Cumin seeds',10,'g'],
+['Fenugreek seeds',2,'g'],['Mustard seeds',5,'g'],['Sesame oil',100,'ml'],['Salt',22.5,'g']];
+var $=function(id){return document.getElementById(id)};
+var checks=[],notes=[];
+
+function num(id,d){var v=parseFloat($(id).value);return isFinite(v)&&v>=0?v:d}
+function fmt(v,u){
+  if(u==='g'){return v>=1000?(v/1000).toFixed(2)+' kg':Math.round(v)+' g'}
+  return v>=1000?(v/1000).toFixed(2)+' L':Math.round(v)+' ml'}
+function batchKg(){return $('batchSel').value==='custom'?Math.max(num('batchCustom',5),0.5):parseFloat($('batchSel').value)}
+function addDays(s,n){if(!s)return '';var d=new Date(s+'T00:00:00');d.setDate(d.getDate()+n);
+  return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})}
+function dFmt(s){return s?new Date(s+'T00:00:00').toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'-'}
+
+function calc(){
+  var req=num('reqQty',0),buf=num('buffer',0),bk=batchKg();
+  var target=req*(1+buf/100);
+  var batches=target>0?Math.ceil(target/bk-1e-9):0;
+  var out=batches*bk;
+  var perBatchFactor=bk/BASE_YIELD;
+  return{req:req,buf:buf,bk:bk,target:target,batches:batches,out:out,f:perBatchFactor};
+}
+
+function render(){
+  var c=calc();
+  $('customWrap').className=$('batchSel').value==='custom'?'':'hide';
+  var shelf=num('shelf',5),pd=$('prodDate').value;
+  $('sum').innerHTML=
+    '<div><b>'+c.batches+'</b><span>batches of '+c.bk+' kg</span></div>'+
+    '<div><b>'+c.out.toFixed(1)+' kg</b><span>total output planned</span></div>'+
+    '<div><b>'+c.target.toFixed(1)+' kg</b><span>needed incl. wastage</span></div>'+
+    '<div><b>'+(pd?addDays(pd,shelf):'-')+'</b><span>use by</span></div>';
+  var h='<tr><th>Ingredient</th><th class="n">Per batch</th><th class="n">Total</th></tr>';
+  ING.forEach(function(i){var per=i[1]*c.f;h+='<tr><td>'+i[0]+'</td><td class="n">'+fmt(per,i[2])+'</td><td class="n">'+fmt(per*c.batches,i[2])+'</td></tr>'});
+  $('ingTbl').innerHTML=h;
+  var b='<tr><th>Batch</th><th class="n">Output (kg)</th><th>Done</th><th>Notes</th></tr>';
+  for(var k=0;k<c.batches;k++){
+    b+='<tr><td>'+(k+1)+'</td><td class="n">'+c.bk+'</td><td><input type="checkbox" data-c="'+k+'"'+(checks[k]?' checked':'')+' aria-label="Batch '+(k+1)+' done"></td>'+
+       '<td><input type="text" data-n="'+k+'" value="'+(notes[k]||'').replace(/"/g,'&quot;')+'" aria-label="Batch '+(k+1)+' notes"></td></tr>';}
+  if(!c.batches)b+='<tr><td colspan="4">Enter a quantity to see batches.</td></tr>';
+  $('ingTbl').parentNode.nextSibling;
+  $('batchTbl').innerHTML=b;
+  save();
+}
+
+function save(){try{localStorage.setItem(KEY,JSON.stringify({
+  d:$('prodDate').value,q:$('reqQty').value,b:$('buffer').value,s:$('batchSel').value,
+  cb:$('batchCustom').value,sh:$('shelf').value,p:$('prepBy').value,c:checks,n:notes}))}catch(e){}}
+function load(){try{var o=JSON.parse(localStorage.getItem(KEY)||'null');if(!o)return;
+  $('prodDate').value=o.d||'';$('reqQty').value=o.q;$('buffer').value=o.b;$('batchSel').value=o.s;
+  $('batchCustom').value=o.cb;$('shelf').value=o.sh;$('prepBy').value=o.p||'';checks=o.c||[];notes=o.n||[]}catch(e){}}
+
+['prodDate','reqQty','buffer','batchSel','batchCustom','shelf','prepBy'].forEach(function(id){
+  $(id).addEventListener('input',render);$(id).addEventListener('change',render)});
+$('batchTbl').addEventListener('change',function(e){var t=e.target;
+  if(t.dataset.c!==undefined){checks[+t.dataset.c]=t.checked;save()}});
+$('batchTbl').addEventListener('input',function(e){var t=e.target;
+  if(t.dataset.n!==undefined){notes[+t.dataset.n]=t.value;save()}});
+
+$('printBtn').onclick=function(){window.print()};
+$('resetBtn').onclick=function(){
+  if(!confirm('Clear all entries and start a new plan?'))return;
+  checks=[];notes=[];$('reqQty').value=20;$('buffer').value=5;$('batchSel').value='10';
+  $('shelf').value=5;$('prepBy').value='';setToday();render()};
+
+$('xlsBtn').onclick=function(){
+  var c=calc();
+  if(typeof XLSX==='undefined'){alert('Excel library did not load. Check the internet connection and try again.');return}
+  var pd=$('prodDate').value,shelf=num('shelf',5);
+  var s1=[['Focus Prism - Allam Pachadi production plan'],[],
+    ['Production date',dFmt(pd)],['Prepared by',$('prepBy').value],
+    ['Quantity required (kg)',c.req],['Wastage allowance (%)',c.buf],['Target incl. wastage (kg)',+c.target.toFixed(2)],
+    ['Batch size (kg)',c.bk],['Batches',c.batches],['Total output planned (kg)',c.out],
+    ['Use by',pd?addDays(pd,shelf):''],[],
+    ['Ingredient','Unit','Per batch','Total']];
+  ING.forEach(function(i){var per=i[1]*c.f;
+    s1.push([i[0],i[2],Math.round(per*10)/10,Math.round(per*c.batches*10)/10])});
+  s1.push([],['Quantities are in g or ml as shown. Base recipe yield about 700 g per run.']);
+  var s2=[['Batch','Output (kg)','Done','Notes']];
+  for(var k=0;k<c.batches;k++)s2.push([k+1,c.bk,checks[k]?'Yes':'',notes[k]||'']);
+  var wb=XLSX.utils.book_new(),w1=XLSX.utils.aoa_to_sheet(s1),w2=XLSX.utils.aoa_to_sheet(s2);
+  w1['!cols']=[{wch:30},{wch:12},{wch:14},{wch:14}];w2['!cols']=[{wch:8},{wch:12},{wch:8},{wch:40}];
+  XLSX.utils.book_append_sheet(wb,w1,'Plan');XLSX.utils.book_append_sheet(wb,w2,'Batches');
+  XLSX.writeFile(wb,'Allam_Pachadi_Plan_'+(pd||'undated')+'.xlsx')};
+
+function setToday(){var d=new Date(),m=('0'+(d.getMonth()+1)).slice(-2),dd=('0'+d.getDate()).slice(-2);
+  $('prodDate').value=d.getFullYear()+'-'+m+'-'+dd}
+setToday();load();render();
+})();
+</script>
+</body>
+</html>
